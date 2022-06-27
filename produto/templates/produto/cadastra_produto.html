@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% load humanize %}
+
+{% block titulo %}
+   Cadastro de Produtos
+{% endblock %}
+
+{% block corpo %}
+   <div class='mb-4'>
+      <h5>Cadastro de Produtos</h5>
+      <hr class='mt-0'>
+   </div>
+
+   <form action="{% url 'produto:cadastra_produto' %}" method="POST" class="pb-4"
+         enctype="multipart/form-data" novalidate>
+            <div class="row mb-xl-3">
+         <div class="col-xl-6">
+            <div class="row">
+               <label for="id_categoria" class="col-xl-2 font-weight-bold">Categoria</label>
+               <div class="col-xl-10">
+                  {{ form.categoria }}
+                  {% if form.categoria.errors %}
+                     <div class="alert alert-danger mb-0" role="alert" style="padding-top: 2px; padding-bottom: 2px">
+                        {% for error in form.categoria.errors %}
+                           <small>{{ error }}</small>
+                        {% endfor %}
+                     </div>
+                  {% endif %}
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div class="row mb-xl-3">
+         <div class="col-xl-6">
+            <div class="row">
+               <label for="id_nome" class="col-xl-2 font-weight-bold">Nome</label>
+               <div class="col-xl-10">
+                  {{ form.nome }}
+                  {% if form.nome.errors %}
+                     <div class="alert alert-danger mb-0" role="alert" style="padding-top: 2px; padding-bottom: 2px">
+                        {% for error in form.nome.errors %}
+                           <small>{{ error }}</small>
+                        {% endfor %}
+                     </div>
+                  {% endif %}
+               </div>
+            </div>
+         </div>
+
+      </div>
+
+
+      <div class="row mb-xl-3">
+         <div class="col-xl-6">
+            <div class="row">
+               <label for="id_quantidade" class="col-xl-2 font-weight-bold">Quantidade</label>
+               <div class="col-xl-10">
+                  {{ form.quantidade }}
+                  {% if form.quantidade.errors %}
+                     <div class="alert alert-danger mb-0" role="alert" style="padding-top: 2px; padding-bottom: 2px">
+                        {% for error in form.quantidade.errors %}
+                           <small>{{ error }}</small>
+                        {% endfor %}
+                     </div>
+                  {% endif %}
+               </div>
+            </div>
+         </div>
+
+      </div>
+
+      <div class="row mb-3">
+          <div class="col-xl-6">
+            <div class="row">
+               <label for="id_preco" class="col-xl-2 font-weight-bold">Preço</label>
+               <div class="col-xl-10">
+                  {{ form.preco }}
+                  {% if form.preco.errors %}
+                     <div class="alert alert-danger mb-0" role="alert" style="padding-top: 2px; padding-bottom: 2px">
+                        {% for error in form.preco.errors %}
+                           <small>{{ error }}</small>
+                        {% endfor %}
+                     </div>
+                  {% endif %}
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div class="row mb-5">
+         <div class="col-xl-6">
+            <div class="row">
+               <div class="col-xl-10 offset-xl-2">
+                  {% csrf_token %}
+                  <button id="botao" type="button" class="btn btn-primary cadastrar_produto">
+                        <img src="{% static 'images/skin/database_add.png' %}"> Cadastrar
+                  </button>
+               </div>
+            </div>
+         </div>
+      </div>
+
+   </form>
+
+   
+   
+   {% endblock %}
+   
+ 
+     
+         {% block domready %}
+
+   
+            $('#botao').click( function(){
+               const form = $(this).closest('form')
+               const url = form.attr('action')
+               const formData = form.serializeArray()
+               $.post(url, formData, function(response){
+                  console.log(response)
+                  $().insertBefore('.table tr:last')
+                  
+               })
+            })
+   
+   
+         {% endblock %}
+ 

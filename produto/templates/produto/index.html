@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block titulo %}
+    Venda de Produtos
+{% endblock %}
+
+{% block corpo %}
+    <br>
+        <div id="form">
+
+        </div>
+    <br>
+        <div id="tabela">
+
+        </div>
+    <br/>
+    <br/>
+    <br/>
+{% endblock %}
+
+
+ 
+
+{%block domready%}   
+$(document).ready(function(){
+
+    
+        $.ajax({
+            url: '{% url "produto:cadastra_produto" %}',
+            type: 'GET',
+            dataType: 'html',
+            success: function(data){
+                $('#form').html(data);
+            }
+        });
+
+        $.ajax({
+            url: '{% url "produto:lista_produto" %}',
+            type: 'GET',
+            dataType: 'html',
+            success: function(data){
+                $('#tabela').html(data);
+            }
+        });
+
+
+
+    });
+    
+    
+
+
+    
+{%endblock%}
