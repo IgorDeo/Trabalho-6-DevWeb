@@ -12,7 +12,7 @@
       </div>
 
       <div class="table-responsive mb-3">
-         <table class="table table-sm">
+         <table class="table table-sm" id="tabela">
             <colgroup>
                <col width="40%">
                <col width="15%">
@@ -25,7 +25,7 @@
                   <th class="text-center">Nome</th>
                   <th class="text-center">Categoria</th>
                   <th class="text-center">Quantidade</th>
-                  <th class="text-center">Preço Total</th>
+                  <th class="text-center">Preço</th>
                   <th class="text-center">Remover</th>
                </tr>
             </thead>
@@ -36,7 +36,7 @@
                         <div class="media">
                            <div class="media-body">
                               <h6 class="mt-2">
-                                 <a style="text-decoration: none" href="{{ produtos.produto.get_absolute_url }}"
+                                 <a class="produto_nome" style="text-decoration: none" href="{{ produtos.produto.get_absolute_url }}"
                                     tabindex="-1">
                                     {{ produtos.nome}}
                                  </a>
@@ -45,14 +45,14 @@
                         </div>
                      </td>
 
-                     <td class="text-center align-middle">
+                     <td class="text-center align-middle produto_categoria">
                         {{ produtos.categoria }}
 
                      </td>
 
                      <td class="text-center align-middle">
                         <form class="mx-auto" style="width: 60px;"
-                              
+                        action="{% url 'produto:edita_produto' %}"
                               method ="POST" novalidate>
                            {% csrf_token %}
                            {{ form.produto_id }}
@@ -60,12 +60,13 @@
                         </form>
                      </td>
 
-                     <td class="text-right pr-5 align-middle preco-total">
-                        R$ {{ produtos.preco * produtos.quantidade | intcomma }}
+                     <td class="text-right pr-5 align-middle produto_preco">
+                        R$ {{ produtos.preco | intcomma }}
                      </td>
 
                      <td class="text-center align-middle">
                         <form 
+                              action="{% url 'produto:deleta_produto' %}"
                               method ="post" novalidate>
                            {% csrf_token %}
                            {{ form.produto_id }}
@@ -87,7 +88,7 @@
                      <strong style="margin-left: 10px">Total do carrinho ...</strong>
                   </td>
                   <td class="text-right pr-5">
-                     <strong id="valor-do-carrinho">R$ {{ valor_do_carrinho | floatformat:2 | intcomma }}</strong>
+                     <strong>R$</strong><strong id="valor-do-carrinho">{{ valor_total | floatformat:2 | intcomma }}</strong>
                   </td>
                   <td></td>
                </tr>
@@ -100,17 +101,40 @@
 
 {% block domready %}
 
+   $('#tabela').on('blur', "input.quantidade", function(){
+      const nova_quantidade = $(this).val()
 
+      const form = $(this).closest('form')
+      const url = form.attr('action')
+      const formData = form.serializeArray()
+
+      $.post(url, formData, function(response){
+         console.log(response)
+         $('#valor-do-carrinho').text(response.valor_total)
+      })
+
+   })
+
+
+   $('#tabela').on('click', ".remover", function(){
+      const form = $(this).closest('form')
+      form.append('<input type="hidden" name="quantidade" value="0">')
+      const url = form.attr('action')
+      const formData = form.serializeArray()
+      const tr = $(this).closest('tr')
+
+      $.post(url, formData, function(response){
+         console.log(response)
+         $('#valor-do-carrinho').text(response.valor_total)
+         tr.fadeTo(500, 0, function(){
+            tr.remove()
+         })
+
+      })
+
+   })
 
 {% endblock %}
-
-
-
-
-
-
-
-
 
 
 
