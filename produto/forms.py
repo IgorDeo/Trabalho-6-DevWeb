@@ -66,6 +66,6 @@ class QuantidadeForm(forms.Form):
         max_value=99,
         widget=forms.TextInput(attrs={'class': 'form-control btn-secondary quantidade border-0',
                                       'style': 'text-align: center; background-color: #6c757d; width: 70px;',
-                                      'readonly': 'readonly'}),
+                                      }),
         required=True
     )
