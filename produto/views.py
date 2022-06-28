@@ -3,24 +3,22 @@ from django.contrib import messages
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.forms import model_to_dict
 from django.http import HttpResponse, JsonResponse
-
 from django.shortcuts import render, get_object_or_404
 from django.template.defaultfilters import slugify
-
-
 from categoria.models import Categoria
+from produto.context_processors import atualiza_valor_total
 from produto.forms import ProdutoForm, QuantidadeForm
-
 from produto.models import Produto
+
+
+
 
 def index(request):
     return render(request, 'produto/index.html')
 
 
 def lista_produto(request):
-
     produtos = Produto.objects.all()
-    print(produtos)
 
     forms = []
     for produto in produtos:
@@ -28,6 +26,8 @@ def lista_produto(request):
         forms.append(form)
 
     return render(request, 'produto/lista_produto.html', {'listas':zip(produtos, forms)})
+
+
 
 def cadastra_produto(request):
     if request.POST:
@@ -42,7 +42,6 @@ def cadastra_produto(request):
         if produto_form.is_valid():
             produto = produto_form.save(commit=False)
             produto.slug = slugify(produto.nome)
-            total = int(produto.quantidade) * int(produto.preco)
             produto.save()
             print('produto salvo com sucesso')
             if produto_id:
@@ -51,9 +50,8 @@ def cadastra_produto(request):
             else:
                 messages.add_message(request, messages.INFO, 'Produto cadastrado com sucesso!')
 
-            # retornar JSON response com os dados aqui
-            return JsonResponse([model_to_dict(produto), {'categoria': produto.categoria, 'total': total }], safe=False)
-            # return render(request, 'produto/index.html', {'form': produto_form})
+            print('retornando JSON response')
+            return JsonResponse({'produto_id':produto.id,'nome':produto.nome,'preco':produto.preco,'categoria': produto.categoria.nome, 'quantidade': produto.quantidade }, safe=False)
     else:
         try:
             del request.session['produto_id']
@@ -62,3 +60,42 @@ def cadastra_produto(request):
         produto_form = ProdutoForm()
 
     return render(request, 'produto/cadastra_produto.html', {'form': produto_form})
+
+
+def edita_produto(request):
+    if not request.POST:
+        return(HttpResponse('Não é POST'))
+
+    form = QuantidadeForm(request.POST)
+    if not form.is_valid():
+        return(HttpResponse('Formulário inválido'))
+
+    produto_id = form.cleaned_data['produto_id']
+    quantidade = form.cleaned_data['quantidade']
+
+    if produto_id:
+        produto = get_object_or_404(Produto, pk=produto_id)
+        produto.quantidade = quantidade
+        produto.save()
+
+
+       
+    return JsonResponse(atualiza_valor_total(request))
+
+
+def deleta_produto(request):
+    if not request.POST:
+        return(HttpResponse('Não é POST'))
+
+    form = QuantidadeForm(request.POST)
+    if not form.is_valid():
+        return(HttpResponse('Formulário inválido'))
+
+    produto_id = form.cleaned_data['produto_id']
+    print('produto_id = ' + str(produto_id))
+    if produto_id:
+        produto = get_object_or_404(Produto, pk=produto_id)
+        produto.delete()
+        print("produto deletado")
+
+    return JsonResponse(atualiza_valor_total(request))
