@@ -68,7 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'produto.context_processors.renderiza_produtos',
+                'produto.context_processors.atualiza_valor_total',
             ],
         },
     },
